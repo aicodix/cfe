@@ -20,7 +20,7 @@ int main(int argc, char **argv)
 		return 1;
 	}
 	int chunk_count = argc - 2;
-	typedef CODE::PrimeField<uint64_t, 65537> PF;
+	typedef CODE::PrimeField<uint32_t, 65537> PF;
 	const int MAX_LEN = PF::P - 2;
 	uint16_t *chunk_ident = nullptr;
 	uint16_t *chunk_subst = nullptr;

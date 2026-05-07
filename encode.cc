@@ -34,7 +34,7 @@ int main(int argc, char **argv)
 	int chunk_count = argc - 3;
 	int cfe_overhead = 3 + 2 + 2 + 2 + 3 + 4; // CFE SPLITS IDENT SUB SIZE CRC32
 	int avail_bytes = (chunk_bytes - cfe_overhead) & ~1;
-	typedef CODE::PrimeField<uint64_t, 65537> PF;
+	typedef CODE::PrimeField<uint32_t, 65537> PF;
 	const int MAX_LEN = PF::P - 2;
 	if (avail_bytes > MAX_LEN * 2) {
 		std::cerr << "Size of chunks too large." << std::endl;
