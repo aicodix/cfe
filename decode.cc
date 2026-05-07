@@ -1,5 +1,5 @@
 /*
-Cauchy Prime Field Erasure Coding
+Cauchy Fermat Prime Field Erasure Coding
 
 Copyright 2024 Ahmet Inan <inan@aicodix.de>
 */
@@ -11,7 +11,7 @@ Copyright 2024 Ahmet Inan <inan@aicodix.de>
 #include <iostream>
 #include "crc.hh"
 #include "prime_field.hh"
-#include "cauchy_prime_field_erasure_coding.hh"
+#include "cauchy_fermat_erasure_coding.hh"
 
 int main(int argc, char **argv)
 {
@@ -52,7 +52,7 @@ int main(int argc, char **argv)
 		uint32_t crc32;
 		chunk_file.read(reinterpret_cast<char *>(&crc32), 4);
 		int length = (size + 2 * splits + 2) / (2 * splits + 2);
-		if (!chunk_file || magic[0] != 'C' || magic[1] != 'P' || magic[2] != 'F' || splits >= 1024 || length > MAX_LEN || ident <= splits || list.count(ident)) {
+		if (!chunk_file || magic[0] != 'C' || magic[1] != 'F' || magic[2] != 'E' || splits >= 1024 || length > MAX_LEN || ident <= splits || list.count(ident)) {
 			std::cerr << "Skipping file \"" << chunk_name << "\"." << std::endl;
 			continue;
 		}
@@ -89,10 +89,10 @@ int main(int argc, char **argv)
 		return 1;
 	}
 	uint16_t *output_data = new uint16_t[block_values];
-	auto cpf = new CODE::CauchyPrimeFieldErasureCoding<PF, uint16_t, MAX_LEN>();
+	auto cfe = new CODE::CauchyFermatErasureCoding<PF, uint16_t, MAX_LEN>();
 	static CODE::CRC<uint32_t> crc(0x8F6E37A0);
 	for (int i = 0, j = 0; i < block_count; ++i) {
-		cpf->decode(output_data, chunk_data, chunk_subst, chunk_ident, i, block_values, block_count);
+		cfe->decode(output_data, chunk_data, chunk_subst, chunk_ident, i, block_values, block_count);
 		int copy_bytes = 2 * block_values;
 		j += copy_bytes;
 		if (j > output_bytes)
@@ -101,7 +101,7 @@ int main(int argc, char **argv)
 		for (int k = 0; k < copy_bytes; ++k)
 			crc(reinterpret_cast<uint8_t *>(output_data)[k]);
 	}
-	delete cpf;
+	delete cfe;
 	delete[] chunk_subst;
 	delete[] chunk_ident;
 	delete[] output_data;

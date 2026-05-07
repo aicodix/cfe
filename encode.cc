@@ -1,5 +1,5 @@
 /*
-Cauchy Prime Field Erasure Coding
+Cauchy Fermat Prime Field Erasure Coding
 
 Copyright 2024 Ahmet Inan <inan@aicodix.de>
 */
@@ -11,7 +11,7 @@ Copyright 2024 Ahmet Inan <inan@aicodix.de>
 #include <sys/stat.h>
 #include "crc.hh"
 #include "prime_field.hh"
-#include "cauchy_prime_field_erasure_coding.hh"
+#include "cauchy_fermat_erasure_coding.hh"
 
 int main(int argc, char **argv)
 {
@@ -32,8 +32,8 @@ int main(int argc, char **argv)
 	int input_bytes = sb.st_size;
 	int chunk_bytes = std::atoi(argv[2]);
 	int chunk_count = argc - 3;
-	int cpf_overhead = 3 + 2 + 2 + 2 + 3 + 4; // CPF SPLITS IDENT SUB SIZE CRC32
-	int avail_bytes = (chunk_bytes - cpf_overhead) & ~1;
+	int cfe_overhead = 3 + 2 + 2 + 2 + 3 + 4; // CFE SPLITS IDENT SUB SIZE CRC32
+	int avail_bytes = (chunk_bytes - cfe_overhead) & ~1;
 	typedef CODE::PrimeField<uint64_t, 65537> PF;
 	const int MAX_LEN = PF::P - 2;
 	if (avail_bytes > MAX_LEN * 2) {
@@ -49,7 +49,7 @@ int main(int argc, char **argv)
 		std::cerr << "Need at least " << block_count << " chunks." << std::endl;
 		return 1;
 	}
-	std::cerr << "CPF(" << chunk_count << ", " << block_count << ")" << std::endl;
+	std::cerr << "CFE(" << chunk_count << ", " << block_count << ")" << std::endl;
 	std::ifstream input_file(input_name, std::ios::binary);
 	if (input_file.bad()) {
 		std::cerr << "Couldn't open file \"" << input_name << "\" for reading." << std::endl;
@@ -64,18 +64,18 @@ int main(int argc, char **argv)
 		crc(reinterpret_cast<uint8_t *>(input_data)[i]);
 	for (int i = input_bytes; i < 2 * total_values; ++i)
 		reinterpret_cast<uint8_t *>(input_data)[i] = 0;
-	auto cpf = new CODE::CauchyPrimeFieldErasureCoding<PF, uint16_t, MAX_LEN>();
+	auto cfe = new CODE::CauchyFermatErasureCoding<PF, uint16_t, MAX_LEN>();
 	uint16_t *chunk_data = new uint16_t[block_values];
 	for (int i = 0; i < chunk_count; ++i) {
 		int chunk_ident = block_count + i;
-		int max_sub = cpf->encode(input_data, chunk_data, chunk_ident, block_values, block_count);
+		int max_sub = cfe->encode(input_data, chunk_data, chunk_ident, block_values, block_count);
 		const char *chunk_name = argv[3+i];
 		std::ofstream chunk_file(chunk_name, std::ios::binary | std::ios::trunc);
 		if (chunk_file.bad()) {
 			std::cerr << "Couldn't open file \"" << chunk_name << "\" for writing." << std::endl;
 			return 1;
 		}
-		chunk_file.write("CPF", 3);
+		chunk_file.write("CFE", 3);
 		uint16_t splits = block_count - 1;
 		chunk_file.write(reinterpret_cast<char *>(&splits), 2);
 		uint16_t ident = chunk_ident;
@@ -88,7 +88,7 @@ int main(int argc, char **argv)
 		chunk_file.write(reinterpret_cast<char *>(&crc32), 4);
 		chunk_file.write(reinterpret_cast<char *>(chunk_data), 2 * block_values);
 	}
-	delete cpf;
+	delete cfe;
 	delete[] input_data;
 	delete[] chunk_data;
 	return 0;
