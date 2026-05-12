@@ -32,7 +32,7 @@ int main(int argc, char **argv)
 	int input_bytes = sb.st_size;
 	int chunk_bytes = std::atoi(argv[2]);
 	int chunk_count = argc - 3;
-	int cfe_overhead = 3 + 2 + 2 + 2 + 3 + 4; // CFE SPLITS IDENT SUB SIZE CRC32
+	int cfe_overhead = 3 + 1 + 2 + 2 + 3 + 4; // CFE SPLITS IDENT SUB SIZE CRC32
 	int avail_bytes = (chunk_bytes - cfe_overhead) & ~1;
 	typedef CODE::PrimeField<uint32_t, 65537> PF;
 	const int MAX_LEN = PF::P - 2;
@@ -41,7 +41,7 @@ int main(int argc, char **argv)
 		return 1;
 	}
 	int block_count = (input_bytes + avail_bytes - 1) / avail_bytes;
-	if (avail_bytes < 1 || block_count > 1024) {
+	if (avail_bytes < 1 || block_count > 256) {
 		std::cerr << "Size of chunks too small." << std::endl;
 		return 1;
 	}
@@ -76,8 +76,8 @@ int main(int argc, char **argv)
 			return 1;
 		}
 		chunk_file.write("CFE", 3);
-		uint16_t splits = block_count - 1;
-		chunk_file.write(reinterpret_cast<char *>(&splits), 2);
+		uint8_t splits = block_count - 1;
+		chunk_file.write(reinterpret_cast<char *>(&splits), 1);
 		uint16_t ident = chunk_ident;
 		chunk_file.write(reinterpret_cast<char *>(&ident), 2);
 		uint16_t sub = max_sub;

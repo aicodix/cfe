@@ -41,8 +41,8 @@ int main(int argc, char **argv)
 		}
 		char magic[3];
 		chunk_file.read(magic, 3);
-		uint16_t splits;
-		chunk_file.read(reinterpret_cast<char *>(&splits), 2);
+		uint8_t splits;
+		chunk_file.read(reinterpret_cast<char *>(&splits), 1);
 		uint16_t ident;
 		chunk_file.read(reinterpret_cast<char *>(&ident), 2);
 		uint16_t sub;
@@ -52,7 +52,7 @@ int main(int argc, char **argv)
 		uint32_t crc32;
 		chunk_file.read(reinterpret_cast<char *>(&crc32), 4);
 		int length = (size + 2 * splits + 2) / (2 * splits + 2);
-		if (!chunk_file || magic[0] != 'C' || magic[1] != 'F' || magic[2] != 'E' || splits >= 1024 || length > MAX_LEN || ident <= splits || list.count(ident)) {
+		if (!chunk_file || magic[0] != 'C' || magic[1] != 'F' || magic[2] != 'E' || length > MAX_LEN || ident <= splits || list.count(ident)) {
 			std::cerr << "Skipping file \"" << chunk_name << "\"." << std::endl;
 			continue;
 		}
