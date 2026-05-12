@@ -9,16 +9,16 @@ CXX = clang++ -stdlib=libc++ -march=native
 #CXX = aarch64-unknown-linux-gnu-g++ -static -march=armv8-a+crc+simd -mtune=cortex-a72
 #QEMU = qemu-aarch64
 
-CHUNKS := $(shell seq -f "chunk%02g.cpf" 0 99)
-ERASED := $(shell seq -f "chunk%02g.cpf" 0 99 | sort -R | head -n 49)
+CHUNKS := $(shell seq -f "chunk%03g.cfe" 0 999)
+ERASED := $(shell seq -f "chunk%03g.cfe" 0 999 | sort -R | head -n 131)
 
 .PHONY: all
 
 all: encode decode
 
 test: encode decode
-	dd if=/dev/urandom of=input.dat bs=512 count=512
-	$(QEMU) ./encode input.dat 5380 $(CHUNKS)
+	dd if=/dev/urandom of=input.dat bs=512 count=256
+	$(QEMU) ./encode input.dat 1024 $(CHUNKS)
 	$(QEMU) ./decode output.dat $(ERASED)
 	diff -q -s input.dat output.dat
 	rm input.dat output.dat $(CHUNKS)

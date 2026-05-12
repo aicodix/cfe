@@ -3,24 +3,24 @@
 
 Quick start:
 
-Create file ```input.dat``` with ```256KiB``` of random data:
+Create file ```input.dat``` with ```128KiB``` of random data:
 
 ```
-dd if=/dev/urandom of=input.dat bs=512 count=512
+dd if=/dev/urandom of=input.dat bs=512 count=256
 ```
 
-Encode file ```input.dat``` to a hundred chunk files, each of ```5380``` bytes in size:
+Encode file ```input.dat``` to a thousand chunk files, each of ```1024``` bytes in size:
 
 ```
-./encode input.dat 5380 chunk{00..99}.cfe
+./encode input.dat 1024 chunk{000..999}.cfe
 ```
 
-Output should be ```CFE(100, 49)```, which means we only need any 49 chunks of the 100 encoded.
+Output should be ```CFE(1000, 131)```, which means we only need any 131 chunks of the 1000 encoded.
 
-Randomly delete (erase) 51 chunk files to only keep 49:
+Randomly delete (erase) 869 chunk files to only keep 131:
 
 ```
-ls chunk*.cfe | sort -R | head -n 51 | xargs rm
+ls chunk*.cfe | sort -R | head -n 869 | xargs rm
 ```
 
 Decode ```output.dat``` from remaining chunk files:
