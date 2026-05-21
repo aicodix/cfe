@@ -52,7 +52,7 @@ int main(int argc, char **argv)
 		int splits = ident_splits & 1023;
 		int ident = ident_splits >> 10;
 		int length = (size + 2 * splits + 2) / (2 * splits + 2);
-		if (!chunk_file || magic[0] != 'C' || magic[1] != 'F' || magic[2] != 'E' || length > MAX_LEN || ident <= splits || list.count(ident)) {
+		if (!chunk_file || magic[0] != 'C' || magic[1] != 'F' || magic[2] != 'E' || length > MAX_LEN || list.count(ident)) {
 			std::cerr << "Skipping file \"" << chunk_name << "\"." << std::endl;
 			continue;
 		}
@@ -70,7 +70,7 @@ int main(int argc, char **argv)
 			continue;
 		}
 		list.insert(ident);
-		chunk_ident[block_index] = ident;
+		chunk_ident[block_index] = ident + block_count;
 		chunk_subst[block_index] = sub;
 		chunk_file.read(reinterpret_cast<char *>(chunk_data + block_index * block_values), 2 * block_values);
 		if (++block_index >= block_count)

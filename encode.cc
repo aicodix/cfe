@@ -80,7 +80,7 @@ int main(int argc, char **argv)
 			return 1;
 		}
 		chunk_file.write("CFE", 3);
-		int32_t ident_splits = (block_count - 1) | (chunk_ident << 10);
+		int32_t ident_splits = (block_count - 1) | (i << 10);
 		chunk_file.write(reinterpret_cast<char *>(&ident_splits), 3);
 		uint16_t sub = max_sub;
 		chunk_file.write(reinterpret_cast<char *>(&sub), 2);
