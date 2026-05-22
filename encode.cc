@@ -19,6 +19,11 @@ int main(int argc, char **argv)
 		std::cerr << "usage: " << argv[0] << " INPUT SIZE CHUNKS.." << std::endl;
 		return 1;
 	}
+	int chunk_count = argc - 3;
+	if (chunk_count > 16384) {
+		std::cerr << "Maximum of 16384 chunks are supported." << std::endl;
+		return 1;
+	}
 	const char *input_name = argv[1];
 	struct stat sb;
 	if (stat(input_name, &sb) < 0 || sb.st_size < 1) {
@@ -31,11 +36,6 @@ int main(int argc, char **argv)
 	}
 	int input_bytes = sb.st_size;
 	int chunk_bytes = std::atoi(argv[2]);
-	int chunk_count = argc - 3;
-	if (chunk_count > 16384) {
-		std::cerr << "Maximum of 16384 chunks are supported." << std::endl;
-		return 1;
-	}
 	int cfe_overhead = 3 + 3 + 2 + 3 + 4; // CFE (IDENT+SPLITS) SUB SIZE CRC32
 	int avail_bytes = (chunk_bytes - cfe_overhead) & ~1;
 	typedef CODE::PrimeField<uint32_t, 65537> PF;
